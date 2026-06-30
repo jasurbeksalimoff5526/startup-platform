@@ -1,9 +1,9 @@
-from rest_framework import status
+﻿from rest_framework import status
 from rest_framework.test import APITestCase
 
-from accounts.models import FOUNDER, USER, CustomUser
+from accounts.models import CustomUser
 from feedbacks.models import Comment, Rating
-from startups.models import Category, Startup
+from startups.models import FOUNDER, Category, Startup, StartupMember
 
 
 class FeedbackPermissionTests(APITestCase):
@@ -12,19 +12,16 @@ class FeedbackPermissionTests(APITestCase):
             username="owner",
             email="owner@example.com",
             password="StrongPass123!",
-            role=FOUNDER,
         )
         self.author = CustomUser.objects.create_user(
             username="author",
             email="author@example.com",
             password="StrongPass123!",
-            role=USER,
         )
         self.other = CustomUser.objects.create_user(
             username="other",
             email="other@example.com",
             password="StrongPass123!",
-            role=USER,
         )
         self.category = Category.objects.create(name="AI", slug="ai")
         self.startup = Startup.objects.create(
@@ -43,11 +40,21 @@ class FeedbackPermissionTests(APITestCase):
             short_description="Short",
             description="Long",
         )
+        StartupMember.objects.create(
+            startup=self.startup,
+            user=self.owner,
+            role=FOUNDER,
+        )
+        StartupMember.objects.create(
+            startup=self.other_startup,
+            user=self.owner,
+            role=FOUNDER,
+        )
 
     def test_comment_create_uses_url_startup_and_non_owner_cannot_delete(self):
         self.client.force_authenticate(self.author)
         response = self.client.post(
-            f"/feedbacks/startup/{self.startup.id}/comments/",
+            f"/feedbacks/startups/{self.startup.id}/comments/",
             {"startup": str(self.other_startup.id), "content": "Nice"},
             format="json",
         )
@@ -64,7 +71,7 @@ class FeedbackPermissionTests(APITestCase):
     def test_rating_owner_only_and_range_validation(self):
         self.client.force_authenticate(self.author)
         response = self.client.post(
-            f"/feedbacks/startup/{self.startup.id}/ratings/",
+            f"/feedbacks/startups/{self.startup.id}/ratings/",
             {
                 "problem": 6,
                 "market": 5,

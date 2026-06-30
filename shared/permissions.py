@@ -1,55 +1,54 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+﻿from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAdminUser
+from startups.models import FOUNDER
 
-from accounts.models import FOUNDER, MENTOR
 
-
-class IsFounder(BasePermission):
-    """
-    Faqat founderlar POST, PUT, PATCH, DELETE qila oladi.
-    """
+class IsAdmin(BasePermission):
 
     def has_permission(self, request, view):
         return bool(
             request.user
             and request.user.is_authenticated
-            and request.user.role == FOUNDER
+            and request.user.is_staff
+        )
+
+
+class IsVerifiedUser(BasePermission):
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.is_verified
         )
 
 
 class IsMentor(BasePermission):
-    """
-    Faqat mentorlar uchun.
-    """
 
     def has_permission(self, request, view):
         return bool(
             request.user
             and request.user.is_authenticated
-            and request.user.role == MENTOR
+            and hasattr(
+                request.user,
+                "mentor_profile"
+            )
         )
 
 
-class IsFounderOrReadOnly(BasePermission):
-    """
-    Hamma o'qiy oladi.
-    Faqat founder yozishi mumkin.
-    """
+class IsInvestor(BasePermission):
 
     def has_permission(self, request, view):
-        if request.method in SAFE_METHODS:
-            return True
-
         return bool(
             request.user
             and request.user.is_authenticated
-            and request.user.role == FOUNDER
+            and hasattr(
+                request.user,
+                "investor_profile"
+            )
         )
 
 
-class IsStartupOwner(BasePermission):
-    """
-    Startup egasi tahrirlashi yoki o'chirishi mumkin.
-    """
+class IsOwnerOrReadOnly(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
@@ -62,11 +61,7 @@ class IsStartupOwner(BasePermission):
         )
 
 
-class IsCommentOwner(BasePermission):
-    """
-    Komment egasi tahrirlashi yoki o'chirishi mumkin.
-    """
-
+class IsOwnerOrAdmin(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True
@@ -74,56 +69,82 @@ class IsCommentOwner(BasePermission):
         return bool(
             request.user
             and request.user.is_authenticated
-            and obj.author == request.user
+            and (obj.owner == request.user
+                 or request.user.is_staff
+                 )
+        )
+
+
+class IsAuthorOrAdmin(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and (obj.author == request.user
+                 or request.user.is_staff
+                 )
+        )
+
+
+class IsCommentOwner(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and (obj.author == request.user
+                 or request.user.is_staff
+                 )
         )
 
 
 class IsRatingOwner(BasePermission):
-    """
-    Rating egasi tahrirlashi yoki o'chirishi mumkin.
-    """
-
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True
-
         return bool(
             request.user
             and request.user.is_authenticated
-            and obj.user == request.user
+            and (obj.user == request.user
+                 or request.user.is_staff
+                 )
         )
 
 
-class IsFailedStartupOwner(BasePermission):
-    """
-    Failed Startup posti egasi.
-    """
-
+class IsStartupFounder(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True
-
         return bool(
             request.user
             and request.user.is_authenticated
-            and obj.author == request.user
+            and obj.members.filter(
+                user=request.user,
+                role=FOUNDER
+            ).exists()
         )
 
 
-class IsOwnerOrAdmin(BasePermission):
-    """
-    Egasi yoki admin tahrirlashi mumkin.
-    """
-
+class IsStartupMember(BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.method in SAFE_METHODS:
-            return True
-
         return bool(
             request.user
             and request.user.is_authenticated
-            and (
-                obj.owner == request.user
-                or request.user.is_admin
+            and obj.members.filter(
+                user=request.user
+            ).exists()
+        )
+
+
+class IsAdminOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.method in SAFE_METHODS
+            or (
+                request.user.is_authenticated
+                and request.user.is_staff
             )
         )

@@ -1,7 +1,7 @@
-from rest_framework import status
+﻿from rest_framework import status
 from rest_framework.test import APITestCase
 
-from accounts.models import USER, CustomUser
+from accounts.models import CustomUser
 from failed_startups.models import FailedStartup, FailureReason
 
 
@@ -11,13 +11,11 @@ class FailedStartupPermissionTests(APITestCase):
             username="author",
             email="author@example.com",
             password="StrongPass123!",
-            role=USER,
         )
         other = CustomUser.objects.create_user(
             username="other",
             email="other@example.com",
             password="StrongPass123!",
-            role=USER,
         )
         reason = FailureReason.objects.create(title="No market")
         failed_startup = FailedStartup.objects.create(

@@ -1,7 +1,7 @@
-from rest_framework import generics, permissions
+﻿from rest_framework import generics, permissions
 from .models import FailureReason, FailedStartup
 from .serializers import FailureReasonSerializer, FailedStartupSerializer
-from shared.permissions import IsFailedStartupOwner
+from shared.permissions import IsAuthorOrAdmin
 
 
 class FailureReasonListAPIView(generics.ListAPIView):
@@ -22,4 +22,4 @@ class FailedStartupListCreateAPIView(generics.ListCreateAPIView):
 class FailedStartupDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FailedStartup.objects.all()
     serializer_class = FailedStartupSerializer
-    permission_classes = [permissions.IsAuthenticated, IsFailedStartupOwner]
+    permission_classes = [permissions.IsAuthenticated, IsAuthorOrAdmin]

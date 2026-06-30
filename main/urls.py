@@ -1,4 +1,4 @@
-"""
+﻿"""
 URL configuration for main project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -31,6 +31,8 @@ urlpatterns = [
     path("chat/", include("chat.urls")),
     path("feedbacks/", include("feedbacks.urls")),
     path("notifications/", include("notifications.urls")),
+    path("donations/", include("donations.urls")),
+    path("investments/", include("investments.urls")),
 
 
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

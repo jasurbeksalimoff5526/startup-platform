@@ -1,4 +1,4 @@
-from django.urls import path
+﻿from django.urls import path
 
 from .views import (
     CommentListCreateAPIView,
@@ -8,8 +8,8 @@ from .views import (
 )
 
 urlpatterns = [
-    path("startup/<uuid:startup_id>/comments/", CommentListCreateAPIView.as_view()),
-    path("comments/<uuid:pk>/", CommentDetailAPIView.as_view()),
-    path("startup/<uuid:startup_id>/ratings/", RatingListCreateAPIView.as_view()),
-    path("ratings/<uuid:pk>/", RatingDetailAPIView.as_view()),
+    path("startups/<uuid:startup_id>/comments/", CommentListCreateAPIView.as_view(), name="feedback-comments"),
+    path("comments/<uuid:pk>/", CommentDetailAPIView.as_view(), name="feedback-comment-detail"),
+    path("startups/<uuid:startup_id>/ratings/", RatingListCreateAPIView.as_view(), name="feedback-ratings"),
+    path("ratings/<uuid:pk>/", RatingDetailAPIView.as_view(), name="feedback-rating-detail"),
 ]

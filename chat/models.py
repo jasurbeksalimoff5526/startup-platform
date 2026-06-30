@@ -1,5 +1,4 @@
 from django.db import models
-
 from accounts.models import CustomUser
 from shared.models import BaseModel
 from startups.models import Startup
