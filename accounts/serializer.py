@@ -80,6 +80,9 @@ class LoginSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    mentor_profile = serializers.SerializerMethodField()
+    investor_profile = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomUser
         fields = [
@@ -97,8 +100,23 @@ class ProfileSerializer(serializers.ModelSerializer):
             "twitter",
             "is_verified",
             "created_at",
+
+            "mentor_profile",
+            "investor_profile",
         ]
         read_only_fields = ["id", "is_verified", "created_at"]
+
+    def get_mentor_profile(self, obj):
+        try:
+            return MentorProfileSerializer(obj.mentor_profile).data
+        except MentorProfile.DoesNotExist:
+            return None
+
+    def get_investor_profile(self, obj):
+        try:
+            return InvestorProfileSerializer(obj.investor_profile).data
+        except InvestorProfile.DoesNotExist:
+            return None
 
 
 class ChangePasswordSerializer(serializers.Serializer):

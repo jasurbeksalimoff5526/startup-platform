@@ -51,6 +51,7 @@ class ProfileApiTests(APITestCase):
                 "bio": "Series A",
                 "min_ticket": "50000",
                 "max_ticket": "10000",
+
                 "industries": ["SaaS"],
                 "countries": ["UZ"],
             },

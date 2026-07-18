@@ -1,12 +1,10 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-
 from .models import Comment, Rating
 
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField(read_only=True)
-
     replies = serializers.SerializerMethodField()
 
     class Meta:

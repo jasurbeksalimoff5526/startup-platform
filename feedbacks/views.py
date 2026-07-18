@@ -12,7 +12,7 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Comment.objects.filter(startup_id=self.kwargs["startup_id"])
+        return Comment.objects.filter(startup_id=self.kwargs["startup_id"], parent__isnull=True)
 
     def perform_create(self, serializer):
         startup = get_object_or_404(Startup, pk=self.kwargs["startup_id"])

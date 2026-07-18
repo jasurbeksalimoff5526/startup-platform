@@ -2,7 +2,7 @@
 from rest_framework import permissions, status
 from rest_framework.generics import (
     CreateAPIView,
-    RetrieveUpdateAPIView,
+    RetrieveUpdateAPIView, UpdateAPIView,
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -108,7 +108,7 @@ class ChangePasswordView(APIView):
         )
 
 
-class MentorProfileView(RetrieveUpdateAPIView):
+class MentorProfileView(UpdateAPIView):
     serializer_class = MentorProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -120,7 +120,7 @@ class MentorProfileView(RetrieveUpdateAPIView):
         return profile
 
 
-class InvestorProfileView(RetrieveUpdateAPIView):
+class InvestorProfileView(UpdateAPIView):
     serializer_class = InvestorProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
 
