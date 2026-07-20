@@ -12,7 +12,6 @@ jsonschema-specifications==2025.9.1
 packaging==26.0
 pillow==12.2.0
 postgres==4.0
-psycopg2==2.9.11
 psycopg2-binary==2.9.11
 psycopg2-pool==1.2
 pyaes==1.6.1
@@ -29,3 +28,4 @@ Telethon==1.42.0
 tzdata==2025.3
 uritemplate==4.2.0
 wheel==0.46.3
+django-redis
