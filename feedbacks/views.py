@@ -2,14 +2,20 @@ from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
-
 from startups.models import Startup
 from shared.permissions import IsCommentOwner, IsRatingOwner
-
 from .models import Comment, Rating
 from .seralizer import CommentSerializer, RatingSerializer
+import json
+import redis
 
+from rest_framework import status
 
+redis_client = redis.Redis(
+    host="redis",
+    port=6379,
+    decode_responses=True,
+)
 class CommentListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -22,6 +28,40 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
             )
             .select_related("author")
             .order_by("-created_at")
+        )
+
+    def create(self, request, *args, **kwargs):
+        startup = get_object_or_404(
+            Startup,
+            pk=self.kwargs["startup_id"]
+        )
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        data = {
+            "author_id": request.user.id,
+            "startup_id": startup.id,
+            "parent_id": (
+                serializer.validated_data["parent"].id
+                if serializer.validated_data.get("parent")
+                else None
+            ),
+            "content": serializer.validated_data["content"],
+        }
+
+        redis_client.rpush(
+            "comments_queue",
+            json.dumps(data, default=str)
+        )
+
+        cache.delete(f"startup:{startup.id}:comments")
+
+        return Response(
+            {
+                "message": "Comment queued successfully."
+            },
+            status=status.HTTP_202_ACCEPTED,
         )
 
     def list(self, request, *args, **kwargs):

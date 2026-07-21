@@ -27,5 +27,23 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  celery:
+    build: .
+    command: celery -A main worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - web
+
+  celery-beat:
+    build: .
+    command: celery -A main beat -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - celery
+
 volumes:
   postgres_data:
